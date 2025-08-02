@@ -109,3 +109,99 @@ body {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 300ms;
 }
+
+/* Enhanced Spotify-like styling */
+.spotify-gradient-bg {
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a3a 50%, #2d1b69 100%);
+}
+
+.spotify-card-hover {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.spotify-card-hover:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+.spotify-play-button {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.3s ease;
+}
+
+.spotify-card-hover:hover .spotify-play-button {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Audio waveform effect */
+@keyframes waveform {
+  0%, 100% { height: 4px; }
+  50% { height: 16px; }
+}
+
+.audio-wave {
+  display: inline-block;
+  width: 3px;
+  height: 4px;
+  background: linear-gradient(to top, #1db954, #1ed760);
+  margin: 0 1px;
+  animation: waveform 1s ease-in-out infinite;
+}
+
+.audio-wave:nth-child(2) { animation-delay: 0.1s; }
+.audio-wave:nth-child(3) { animation-delay: 0.2s; }
+.audio-wave:nth-child(4) { animation-delay: 0.3s; }
+.audio-wave:nth-child(5) { animation-delay: 0.4s; }
+
+/* Glow effects */
+.spotify-glow {
+  box-shadow: 0 0 20px rgba(29, 185, 84, 0.3);
+}
+
+.spotify-glow-purple {
+  box-shadow: 0 0 20px rgba(147, 51, 234, 0.4);
+}
+
+/* Music note animation */
+@keyframes float-music-note {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+.music-note-float {
+  animation: float-music-note 3s ease-in-out infinite;
+}
+
+/* Backdrop blur enhancement */
+.backdrop-blur-strong {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Progress bar styling */
+.progress-spotify {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-spotify .progress-fill {
+  background: linear-gradient(90deg, #1db954, #1ed760);
+  transition: width 0.1s ease;
+}
+
+/* Genre badge styling */
+.genre-badge {
+  background: linear-gradient(135deg, rgba(29, 185, 84, 0.2), rgba(30, 215, 96, 0.2));
+  border: 1px solid rgba(29, 185, 84, 0.3);
+  color: #1ed760;
+}
+
+/* Custom focus styles */
+.focus-spotify:focus {
+  outline: 2px solid #1db954;
+  outline-offset: 2px;
+}
