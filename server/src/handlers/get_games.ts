@@ -1,9 +1,22 @@
 
+import { db } from '../db';
+import { gamesTable } from '../db/schema';
 import { type Game } from '../schema';
 
 export async function getGames(): Promise<Game[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all board games from the database
-    // with basic information for the main browsing interface.
-    return Promise.resolve([]);
+  try {
+    const results = await db.select()
+      .from(gamesTable)
+      .execute();
+
+    // Convert numeric fields back to numbers
+    return results.map(game => ({
+      ...game,
+      complexity_rating: parseFloat(game.complexity_rating),
+      bgg_rating: game.bgg_rating ? parseFloat(game.bgg_rating) : null
+    }));
+  } catch (error) {
+    console.error('Failed to fetch games:', error);
+    throw error;
+  }
 }

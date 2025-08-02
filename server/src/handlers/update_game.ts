@@ -1,29 +1,69 @@
 
+import { db } from '../db';
+import { gamesTable, gameCategoryRelationsTable } from '../db/schema';
 import { type UpdateGameInput, type Game } from '../schema';
+import { eq } from 'drizzle-orm';
 
-export async function updateGame(input: UpdateGameInput): Promise<Game> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is updating an existing game's information,
-    // including BGG statistics updates, purchase links, and category changes.
-    // It should handle partial updates and maintain referential integrity.
-    return Promise.resolve({
-        id: input.id,
-        name: 'Updated Game',
-        description: 'Updated description',
-        rules_text: 'Updated rules',
-        min_players: 2,
-        max_players: 4,
-        playtime_minutes: 60,
-        age_rating: 10,
-        complexity_rating: 3.5,
-        bgg_id: null,
-        bgg_rating: null,
-        bgg_rank: null,
-        amazon_link: null,
-        bol_link: null,
-        youtube_tutorial_url: null,
-        cover_image_url: null,
-        created_at: new Date(),
-        updated_at: new Date()
-    } as Game);
-}
+export const updateGame = async (input: UpdateGameInput): Promise<Game> => {
+  try {
+    // First, verify the game exists
+    const existingGame = await db.select()
+      .from(gamesTable)
+      .where(eq(gamesTable.id, input.id))
+      .execute();
+
+    if (existingGame.length === 0) {
+      throw new Error(`Game with id ${input.id} not found`);
+    }
+
+    // Prepare update values, excluding id and category_ids
+    const { id, category_ids, ...updateValues } = input;
+    
+    // Convert numeric fields to strings for database storage
+    const dbUpdateValues: any = { ...updateValues };
+    if (updateValues.complexity_rating !== undefined) {
+      dbUpdateValues.complexity_rating = updateValues.complexity_rating.toString();
+    }
+
+    // Add updated_at timestamp
+    dbUpdateValues.updated_at = new Date();
+
+    // Update the game record
+    const result = await db.update(gamesTable)
+      .set(dbUpdateValues)
+      .where(eq(gamesTable.id, input.id))
+      .returning()
+      .execute();
+
+    // Handle category updates if provided
+    if (category_ids !== undefined) {
+      // Remove existing category relationships
+      await db.delete(gameCategoryRelationsTable)
+        .where(eq(gameCategoryRelationsTable.game_id, input.id))
+        .execute();
+
+      // Add new category relationships
+      if (category_ids.length > 0) {
+        const categoryRelations = category_ids.map(category_id => ({
+          game_id: input.id,
+          category_id
+        }));
+
+        await db.insert(gameCategoryRelationsTable)
+          .values(categoryRelations)
+          .execute();
+      }
+    }
+
+    // Convert numeric fields back to numbers for return
+    const updatedGame = result[0];
+    return {
+      ...updatedGame,
+      complexity_rating: parseFloat(updatedGame.complexity_rating),
+      bgg_rating: updatedGame.bgg_rating ? parseFloat(updatedGame.bgg_rating) : null
+    };
+  } catch (error) {
+    console.error('Game update failed:', error);
+    throw error;
+  }
+};
